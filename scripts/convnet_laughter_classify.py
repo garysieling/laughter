@@ -19,8 +19,8 @@ import numpy as np
 import librosa
 
 ## Dataset location
-FILENAMES = "../dataset/unbalanced/10secondclipfiles.txt"
-DATASET_LOCATION = "../dataset/unbalanced/"
+FILENAMES = "../../laughter_files.txt"
+DATASET_LOCATION = ""
 
 ## Hyperparameters
 # for Learning algorithm
@@ -47,9 +47,17 @@ def labeltext2labelid(category_name):
     """
     Returns a numerical label for each laughter category
     """
-    possible_categories = ['baby_laughter_clips', 'belly_laugh_clips', \
-    'chuckle_chortle_clips', 'giggle_clips', 'nota_clips', 'snicker_clips']
-    return possible_categories.index(category_name)
+    #possible_categories = ['baby_laughter_clips', 'belly_laugh_clips', \
+    #'chuckle_chortle_clips', 'giggle_clips', 'nota_clips', 'snicker_clips']
+    #possible_categories = ['laughter', 'speech']
+    print("category_name: " + category_name)
+
+    if (category_name == "samples"):
+        return 0
+    else:
+        return 1
+
+    #return possible_categories.index(category_name)
 
 def shape_sound_clip(sound_clip, required_length=max_audio_length):
     """
@@ -76,6 +84,7 @@ def extract_features(filenames):
     log_specgrams = []
     labels=[]
     for f in filenames:
+      print(f)
       signal,s = librosa.load(f)
       sound_clip = shape_sound_clip(signal)
 
@@ -150,7 +159,7 @@ random.seed(10)
 random.shuffle(filenames)
 rnd_indices = np.random.rand(len(filenames)) < 0.80
 
-print len(rnd_indices)
+print(len(rnd_indices))
 train = []
 test = []
 
@@ -209,14 +218,14 @@ with tf.Session() as session:
         batch_y = train_y[offset:(offset + batch_size)]
         batch_y = one_hot_encode(batch_y)
         if itr % 10 == 0:
-            print 'Test Accuracy: {}'.format(session.run(accuracy, feed_dict={X: test_x, Y: test_y}))
+            print('Test Accuracy: {}'.format(session.run(accuracy, feed_dict={X: test_x, Y: test_y})))
             saver.save(session, "./model", global_step=itr)
         _, c, a = session.run([optimizer, cross_entropy, accuracy],feed_dict={X: batch_x, Y : batch_y})
-        print "Training iteration {}: accuracy {}".format(itr, a)
+        print("Training iteration {}: accuracy {}".format(itr, a))
         cost_history = np.append(cost_history,c)
         del batch_x
 
-    print 'Final accuracy: {}'.format(session.run(accuracy, feed_dict={X: test_x, Y: test_y}))
+    print('Final accuracy: {}'.format(session.run(accuracy, feed_dict={X: test_x, Y: test_y})))
     #fig = plt.figure(figsize=(15,10))
 
     #plt.plot(cost_history)
